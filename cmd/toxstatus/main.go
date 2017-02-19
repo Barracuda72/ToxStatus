@@ -8,6 +8,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/http/pprof"
 	"os"
 	"os/signal"
 	"sort"
@@ -78,6 +79,10 @@ func main() {
 	serveMux.HandleFunc("/", handleHTTPRequest)
 	serveMux.Handle("/test", tollbooth.LimitFuncHandler(limiter, handleHTTPRequest))
 	serveMux.HandleFunc("/json", handleJSONRequest)
+	serveMux.HandleFunc("/debug/pprof/", http.HandlerFunc(pprof.Index))
+	serveMux.HandleFunc("/debug/pprof/cmdline", http.HandlerFunc(pprof.Cmdline))
+	serveMux.HandleFunc("/debug/pprof/profile", http.HandlerFunc(pprof.Profile))
+	serveMux.HandleFunc("/debug/pprof/symbol", http.HandlerFunc(pprof.Symbol))
 	go func() {
 		err := http.Serve(listener, serveMux)
 		if err != nil {
